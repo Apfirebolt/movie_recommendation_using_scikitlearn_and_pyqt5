@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
 )
 from PyQt5.QtWidgets import QHeaderView
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt
 
 
 class SimpleTable(QWidget):
@@ -27,7 +27,7 @@ class SimpleTable(QWidget):
     def initUI(self):
         self.setWindowTitle("Movie Recommendation System")
         self.setGeometry(100, 100, 1200, 800)
-
+        
         layout = QVBoxLayout()
         self.setLayout(layout)
 
@@ -115,7 +115,7 @@ class PaginatedTable(SimpleTable):
             idx = self.data[self.data['title'] == title].index[0]
 
             # Get the pairwise similarity scores of all movies with that movie
-            distances, indices = knn.kneighbors(tfidf_matrix[idx], n_neighbors=6)
+            _, indices = knn.kneighbors(tfidf_matrix[idx], n_neighbors=6)
 
             # Get the movie indices
             movie_indices = indices.flatten()[1:]
@@ -171,7 +171,7 @@ class PaginatedTable(SimpleTable):
 
             for movie in recommendations:
                 movie_label = QLabel(movie)
-                movie_label.setStyleSheet("padding: 5px; font-size: 14px;")
+                movie_label.setStyleSheet("padding: 5px; font-size: 14px; background-color: #6E8E59; margin: 10px; text-align: center; color: #EAFAEA")
                 layout.addWidget(movie_label)
             self.recommendations_window.show()
         
@@ -219,22 +219,16 @@ class PaginatedTable(SimpleTable):
         self.prev_button = QPushButton("Previous")
         self.next_button = QPushButton("Next")
         self.info_button = QPushButton("Info")
-        self.reload_button = QPushButton("Reload Data")
-        self.reload_button.setStyleSheet(
-            "padding: 10px; background-color: #3498db; color: white;"
-        )
-        self.reload_button.clicked.connect(self.reload_data)
-        button_layout.addWidget(self.reload_button)
 
         # Apply styles
         self.prev_button.setStyleSheet(
-            "padding: 10px; background-color: #3498db; color: white;"
+            "padding: 10px; background-color: #780C28; color: white;"
         )
         self.next_button.setStyleSheet(
-            "padding: 10px; background-color: #3498db; color: white;"
+            "padding: 10px; background-color: #780C28; color: white;"
         )
         self.info_button.setStyleSheet(
-            "padding: 10px; background-color: #3498db; color: white;"
+            "padding: 10px; background-color: #780C28; color: white;"
         )
         self.prev_button.clicked.connect(self.previous_page)
         self.next_button.clicked.connect(self.next_page)
@@ -249,6 +243,9 @@ class PaginatedTable(SimpleTable):
         self.movie_label = QLabel("Enter Movie Name:")
         self.movie_input = QLineEdit()
         self.recommend_button = QPushButton("Recommend Movies")
+        self.recommend_button.setStyleSheet(
+            "padding: 5px; background-color: #6E8E59; color: white; border-radius: 10px; margin-left: 10px;"
+        )
 
         prediction_layout.addWidget(self.movie_label)
         prediction_layout.addWidget(self.movie_input)
@@ -320,8 +317,9 @@ class PaginatedTable(SimpleTable):
             self.update_table()
 
     def show_info(self):
-        info = self.data.describe().to_string()
-
+        info = f"Number of rows: {self.data.shape[0]}\nNumber of columns: {self.data.shape[1]}"
+        null_values_info = self.data.isnull().sum().to_string()
+        
         self.info_window = QWidget()
         self.info_window.setWindowTitle("Data Info")
         self.info_window.setGeometry(150, 150, 400, 300)
@@ -332,6 +330,10 @@ class PaginatedTable(SimpleTable):
         info_label = QLabel(info)
         info_label.setWordWrap(True)
         layout.addWidget(info_label)
+
+        null_info = QLabel(null_values_info)
+        null_info.setWordWrap(True)
+        layout.addWidget(null_info)
 
         self.info_window.show()
 

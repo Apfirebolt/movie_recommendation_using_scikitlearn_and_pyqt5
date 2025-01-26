@@ -11,6 +11,46 @@ This application provides movie recommendations based on user preferences. It us
 - Search functionality
 - Detailed movie information
 
+## Algorithms used
+
+### KNN 
+
+K-Nearest Neighbors (KNN) is a simple, yet powerful machine learning algorithm used for classification and regression tasks. In this application, we use the KNN algorithm from the `scikit-learn` library to provide movie recommendations.
+
+### How KNN Works
+
+KNN works by finding the `k` nearest data points (neighbors) to a given input and making predictions based on the majority class (for classification) or the average value (for regression) of these neighbors.
+
+### Implementation in scikit-learn
+
+To implement KNN in our application, we use the `KNeighborsClassifier` from `scikit-learn`. Here is a brief overview of the steps involved:
+
+1. **Import the necessary libraries:**
+    ```python
+    from sklearn.neighbors import KNeighborsClassifier
+    ```
+
+2. **Prepare the data:**
+    - Split the data into features and labels.
+    - Normalize the data if necessary.
+
+3. **Initialize the KNN classifier:**
+    ```python
+    knn = KNeighborsClassifier(n_neighbors=5)
+    ```
+
+4. **Train the classifier:**
+    ```python
+    knn.fit(X_train, y_train)
+    ```
+
+5. **Make predictions:**
+    ```python
+    predictions = knn.predict(X_test)
+    ```
+
+By using KNN, our application can effectively recommend movies based on the preferences of similar users.
+
 ## Installation
 
 1. Clone the repository:
