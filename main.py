@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.neighbors import NearestNeighbors
 
 import sys
@@ -12,7 +13,6 @@ from PyQt5.QtWidgets import (
     QLabel,
     QPushButton,
     QLineEdit,
-    QComboBox,
     QHBoxLayout,
 )
 from PyQt5.QtWidgets import QHeaderView
@@ -46,6 +46,54 @@ class PaginatedTable(SimpleTable):
         self.model = None
         self.tfidf_matrix = None
         super().__init__()
+
+
+    def train_model_overview(self):
+        # Create a TF-IDF Vectorizer
+        tfidf_vectorizer = TfidfVectorizer()
+
+        # Fit and transform the overview column
+        tfidf_matrix = tfidf_vectorizer.fit_transform(self.data['overview'].fillna(''))
+
+        # Compute the cosine similarity matrix
+        cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+
+        return cosine_sim
+    
+    
+    def get_recommendations_cosine_sim(self,title, cosine_sim):
+
+        # Return the 5 top matches
+        # Get the index of the movie that matches the title
+        idx = self.data[self.data['title'] == title].index[0]
+
+        # Get the pairwise similarity scores of all movies with that movie
+        sim_scores = list(enumerate(cosine_sim[idx]))
+
+        # Sort the movies based on the similarity scores
+        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+
+        # Get the scores of the 5 most similar movies
+        sim_scores = sim_scores[1:6]
+
+        # Get the movie indices
+        movie_indices = [i[0] for i in sim_scores]
+
+        # Return the top 5 most similar movies
+        return self.data['title'].iloc[movie_indices]
+    
+
+    def train_model(self):
+        # Create a TF-IDF Vectorizer
+        tfidf_vectorizer = TfidfVectorizer()
+
+        # Fit and transform the keywords column
+        tfidf_matrix = tfidf_vectorizer.fit_transform(self.data['keywords'].fillna(''))
+
+        # Compute the cosine similarity matrix
+        cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+
+        return cosine_sim
 
 
     def train_knn_model(self):
@@ -92,7 +140,27 @@ class PaginatedTable(SimpleTable):
     def get_recommended_movies(self):
         movie_title = self.movie_input.text()
         recommendations = self.get_knn_recommendations(movie_title, self.model, self.tfidf_matrix)
-        print(recommendations)
+        
+        if len(recommendations):
+            self.recommendations_window = QWidget()
+            self.recommendations_window.setWindowTitle(f"Recommendations for '{movie_title}'")
+            self.recommendations_window.setGeometry(200, 200, 400, 300)
+
+            layout = QVBoxLayout()
+            self.recommendations_window.setLayout(layout)
+
+            for movie in recommendations:
+                movie_label = QLabel(movie)
+                movie_label.setStyleSheet("padding: 5px; font-size: 14px;")
+                layout.addWidget(movie_label)
+            self.recommendations_window.show()
+
+    
+    def get_cosine_recommendations(self):
+        movie_title = self.movie_input.text()
+        cosine_sim = self.train_model_overview()
+        recommendations = self.get_recommendations_cosine_sim(movie_title, cosine_sim)
+        
         if len(recommendations):
             self.recommendations_window = QWidget()
             self.recommendations_window.setWindowTitle(f"Recommendations for '{movie_title}'")
@@ -190,7 +258,8 @@ class PaginatedTable(SimpleTable):
         self.layout().addLayout(prediction_layout)
         self.layout().addLayout(button_layout)
 
-        self.recommend_button.clicked.connect(self.get_recommended_movies)
+        # self.recommend_button.clicked.connect(self.get_recommended_movies)
+        self.recommend_button.clicked.connect(self.get_cosine_recommendations)
        
 
     def update_table(self):
@@ -228,7 +297,7 @@ class PaginatedTable(SimpleTable):
 
     def show_cell_content(self, content):
         self.content_window = QWidget()
-        self.content_window.setWindowTitle("Cell Content")
+        self.content_window.setWindowTitle("Movie Overview")
         self.content_window.setGeometry(200, 200, 400, 200)
 
         layout = QVBoxLayout()
