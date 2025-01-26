@@ -12,10 +12,18 @@ This application provides movie recommendations based on user preferences. It us
 
 ## Features
 
-- User-friendly GUI
-- Personalized movie recommendations
-- Search functionality
+- User-friendly GUI using PyQt5
+- Movie recommendations using KNN and Cosine Similarity Metrics
+- Search functionality across all 4800 movies
 - Detailed movie information
+
+## Screenshots
+
+![Home Screen](screenshots/1.png)
+*Home Screen of the Movie Recommendation App*
+
+![Recommendation Results](screenshots/2.png)
+*Recommendation Results for a Movie (Spider-Man 3)*
 
 ## Algorithms used
 
@@ -91,7 +99,7 @@ By using Cosine Similarity, our application can effectively recommend movies tha
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/apfirebolt/movie_recommendation.git
+    git clone https://github.com/Apfirebolt/movie_recommendation_using_scikitlearn_and_pyqt5
     ```
 2. Navigate to the project directory:
     ```bash
